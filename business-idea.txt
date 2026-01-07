@@ -1,0 +1,253 @@
+Strategic Blueprint for Automated AI Due Diligence: A Technical and Operational Roadmap for Pathway Property
+Executive Summary
+The Australian real estate sector is currently navigating a period of profound technological disruption, characterized by an exponential increase in data availability and a simultaneous rise in regulatory complexity. For high-volume investment firms and buyer's agencies such as Pathway Property, the traditional model of manual due diligence represents a critical operational bottleneck. The prevailing workflow—reliant on human analysts to synthesize hundreds of pages of legal disclosures, planning overlays, and physical inspection reports—is capital intensive, time-consuming, and prone to error. This report articulates a comprehensive architectural, legal, and operational framework for the development of a proprietary Automated AI Due Diligence System.
+This proposed system is not merely a document indexer; it is designed as a multi-agent intelligence platform capable of autonomous reasoning. By integrating Large Language Models (LLMs) via Retrieval-Augmented Generation (RAG) architectures, the system can digest complex legal instruments such as Victorian Section 32 Vendor Statements and NSW Contracts for Sale in seconds. Furthermore, by coupling this textual analysis with Computer Vision (CV) models for physical defect detection and high-fidelity API integrations (CoreLogic, Geoscape, VicPlan), Pathway Property can achieve a sophisticated, real-time risk assessment capability.
+The analysis that follows is exhaustive. It deconstructs the Australian property regulatory landscape state-by-state, mapping specific legal obligations to technical extraction logic. It evaluates the requisite data ecosystem, comparing the efficacy and cost-structures of major providers like CoreLogic and Domain against open government sources. Finally, it provides a detailed engineering blueprint for building the system, addressing the nuanced challenges of extracting semantic meaning from unstructured Australian legal PDFs and ensuring compliance with the Privacy Act 1988 and Australian Consumer Law.
+The implementation of this system promises to transform Pathway Property’s value proposition. By reducing the preliminary due diligence cycle from days to minutes, the firm can analyze a significantly broader funnel of assets, identifying high-yield investment opportunities with a level of speed and rigorous risk mitigation that is currently unattainable through manual processes. This report serves as the definitive guide to realizing that capability.
+1. Strategic Context: The Operational Imperative for Pathway Property
+Pathway Property operates in a competitive landscape where speed to insight is the primary differentiator. As a firm likely catering to investors seeking yield, capital growth, or development potential, the ability to rapidly discard "lemon" assets and lock in high-quality stock is paramount. The current market environment involves highly fragmented data sources—legal documents from conveyancers, physical condition reports from inspectors, and market data from aggregators—all of which exist in silos.
+1.1 The Due Diligence Bottleneck
+In a typical acquisition workflow, a property analyst might spend between four to eight hours performing a preliminary review of a single asset. This involves reading the Section 32 (in Victoria) or Contract of Sale (in NSW), checking zoning maps, calling the council regarding future developments, and manually calculating yield based on rental comparables. This latency means that by the time a thorough assessment is complete, highly desirable properties may already be under offer.
+The proposed AI solution addresses this by inverting the workflow. Instead of human analysts searching for data, the AI system pre-digests the entire data room, presenting the analyst with a structured "Risk Matrix" and "Feasibility Dashboard" immediately upon file ingestion. This shifts the human role from data extraction to strategic decision-making.
+1.2 The "Three Pillars" of Risk
+The system architecture is organized around three non-negotiable pillars of Australian real estate due diligence:
+Legal Pillar: Verifying title, ownership, encumbrances, and contractual obligations.1
+Physical Pillar: Assessing the built form for defects, illegal works, and environmental risks like flooding or bushfire.1
+Financial Pillar: Validating valuation, rental yield, outgoings, and tax implications (including Land Tax and GST).1
+The following sections dissect these pillars to define the precise requirements for the AI system.
+2. The Australian Due Diligence Framework: A Multi-Jurisdictional Analysis
+To build an effective AI, the "ground truth" logic must be impeccable. Australian property law is federated, meaning the AI must be "jurisdiction-aware." A robust system cannot simply apply a generic set of rules; it must detect the property's state and apply the relevant legislative logic.
+2.1 Victoria: The Section 32 Vendor Statement
+In Victoria, the Sale of Land Act 1962 places a heavy disclosure burden on the vendor via the Section 32 Statement. This document is the "black box" of the property’s health, and extracting its data is the system's highest priority.
+2.1.1 Title Verification and Encumbrances
+The foundational check is the Certificate of Title. The AI must parse the "Register Search Statement" to verify the "Registered Proprietor."
+The Mismatch Risk: If the vendor named in the contract differs from the proprietor on the title (e.g., the proprietor is deceased), the AI must check for an accompanying "Grant of Probate." Failure to identify this can delay settlement by months.
+Encumbrances: The system must identify all registered interests.
+Mortgages: These are standard but must be discharged.
+Caveats: A caveat acts as a statutory injunction. The AI must extract the "Caveator" and the "Grounds of Claim." A caveat lodged by a commercial lender is routine; a caveat lodged by an individual often signals a messy dispute (divorce, debt, or unregistered interest) that poses a settlement risk.2
+Covenants: Restrictive covenants are arguably the most critical extract for developers. A covenant dating back to the 1920s might restrict the land to "one dwelling house only" or prohibit the quarrying of materials. Such a clause can instantly destroy a townhouse feasibility model. The AI must rely on OCR to read these often-archaic historical documents attached to the Section 32.2
+2.1.2 Planning and Zoning Intelligence
+The Section 32 includes a Planning Certificate. However, relying solely on the attached PDF is dangerous as it may be outdated.
+Dynamic Validation: The AI system should extract the stated zone (e.g., "General Residential Zone - Schedule 1") and cross-reference it with the VicPlan API in real-time.
+Overlay Analysis: The system must detect specific overlays that trigger development constraints:
+Heritage Overlay (HO): Severely restricts demolition and external alteration. The AI needs to identify if the specific property is listed or if it falls within a precinct.6
+Special Building Overlay (SBO) / Land Subject to Inundation (LSIO): Indicates flood risk, triggering higher insurance premiums and floor-level requirements.7
+Design and Development Overlay (DDO): Often imposes height limits or setback requirements that differ from the standard code.
+2.1.3 Building Permits and the "Illegal Works" Flag
+For any residential building work carried out in the preceding seven years, the vendor must provide a Building Permit and a Certificate of Final Inspection.
+The Inference Engine: The AI system can perform a sophisticated cross-check. It reads the "Building Permits" section of the Section 32. It then analyzes the marketing floorplan and photos using Computer Vision. If the photos show a modern deck, pergola, or swimming pool, but the Section 32 lists no permits for these structures, the system raises a High Risk Flag: Potential Illegal Works.1
+Owner Builder Defects: If the vendor was an owner-builder, a Section 137B Defect Report is mandatory. The absence of this document renders the contract voidable by the purchaser, a critical "kill switch" for the deal.9
+2.2 New South Wales: The Contract for Sale
+The NSW framework under the Conveyancing Act 1919 requires a "Contract for Sale of Land" with prescribed attachments.
+2.2.1 Section 10.7 Certificates (Formerly s149)
+This council certificate is the NSW equivalent of the planning certificate.
+Bushfire and Flood: The AI must parse Part 2 of the certificate to identify if the land is "Bushfire Prone" or "Flood Prone."
+Complying Development: It indicates whether "Complying Development" (fast-tracked approval) is possible. For Pathway Property, knowing a site allows for Complying Development for a granny flat is a massive value-add for investor clients.
+2.2.2 Drainage and Sewer Diagrams
+The "Sewer Service Diagram" is a prescribed document.
+The "Build Over" Risk: The AI must analyze the diagram to identify if the main sewer line runs directly under the proposed building envelope. While the system cannot perfectly interpret the diagram's spatial geometry without advanced GIS, it can flag the existence of a Sydney Water asset within the boundary, prompting a human "dial-before-you-dig" check.10
+2.2.3 Cooling-Off Waivers (Section 66W)
+In hot markets, vendors often demand a "Section 66W Certificate" to waive the cooling-off period. The AI must scan correspondence or the draft contract for this request, alerting the Pathway agent that the due diligence must be completed before the offer is signed, as there will be no retreat.11
+2.3 Strata and Community Title: The "Hidden" Risks
+For apartments and townhouses—a key asset class for investors—the Owners Corporation (VIC) or Strata Scheme (NSW) holds the keys to the building's financial and physical health.
+2.3.1 Financial Health Analysis
+Levy Analysis: The AI must extract the quarterly Administrative Fund and Capital Works Fund (Sinking Fund) levies.
+The Ratio Check: It should calculate the ratio of the Capital Works Fund balance to the insured value of the building. A low ratio in an older building suggests a "Special Levy" is imminent to pay for major repairs like roof replacement or lift upgrades.12
+2.3.2 Meeting Minutes Sentiment Analysis
+The AI should ingest the last three years of AGM (Annual General Meeting) minutes.
+Keyword Risk Profiling: It must search for "cladding," "water ingress," "legal action," "VCAT/NCAT," "noise," and "defects."
+Pattern Recognition: Frequent discussions about "pump failures" or "lift breakdowns" indicate chronic maintenance issues that will erode the investor's yield.14
+Pet Restrictions: Many investors want pet-friendly units. The AI must check the "Model Rules" or "By-Laws" for any prohibitions on pets, which are increasingly being challenged but still exist in older schemes.7
+2.4 Specialized Investment Vehicles: Rooming Houses and SMSF
+Given Pathway Property's focus, two niche areas require specific AI logic.
+2.4.1 Rooming Houses (High Yield / High Risk)
+Rooming houses (boarding houses) offer high yields but operate under a draconian regulatory regime in Victoria, enforced by the Public Health and Wellbeing Act.
+Registration Check: The AI must verify if the property is registered on the "Public Register of Rooming Houses."
+Class 1b Compliance: It must check the Section 32 for evidence of "Class 1b" building classification (required for >12 residents or >300m²).
+Essential Safety Measures: The AI must scan for the "Annual Essential Safety Measures Report" (AESMR). Missing fire safety checks are a major compliance risk that can lead to facility closure.16
+2.4.2 Self-Managed Super Funds (SMSF)
+Investors buying via SMSF are bound by the "Sole Purpose Test."
+The "Arm's Length" Check: The AI can flag if the vendor has the same surname as the purchaser (if known), warning of a potential "Related Party" transaction breach.18
+No Borrowing/Gearing: While SMSFs can borrow via Limited Recourse Borrowing Arrangements (LRBA), the AI should flag if the property is a "vacant land" acquisition intended for development, as SMSFs generally cannot borrow to build (only to repair).18
+3. Data Acquisition Strategy: Navigating the Australian PropTech API Ecosystem
+The AI engine requires fuel in the form of structured data. The Australian ecosystem is a mix of expensive commercial monopolies and emerging open government data.
+3.1 Commercial Data Providers
+3.1.1 CoreLogic (RP Data)
+CoreLogic is the dominant aggregator in Australia, holding the deepest history of transactional data.
+Trestle (RESO Web API): CoreLogic is migrating to the "Trestle" platform, which implements the RESO (Real Estate Standards Organization) standard. This is the preferred integration point for Pathway Property.20
+Key Endpoints:
+Property resource: Provides canonical details (bed, bath, car, land size) to validate against marketing claims.
+AVM (Automated Valuation Model): Provides a machine-generated value estimate and rental yield. This serves as a baseline for the Financial Pillar.
+TransactionHistory: Essential for comparable sales analysis.
+Pricing: CoreLogic data is premium. Enterprise access via Trestle typically involves a tiered subscription model. For a firm like Pathway, this could range from $12,000 to $20,000+ annually depending on call volume and the number of active seats. The "Startup" or "Developer" tiers are often restricted to non-production use.22
+3.1.2 Domain Group
+Domain offers a suite of APIs that are excellent for "live" market data.
+Agencies & Listings Package: Allows the system to pull live pricing guides, auction times, and agent details.
+Schools Data API: In Australia, school zones (e.g., Balwyn High School in Melbourne) drive prices. The Domain API allows the AI to confirm if a property is inside a highly coveted catchment zone, a critical factor for capital growth predictions.24
+Pricing: Domain uses a usage-based model with a free tier for development. Commercial use requires a negotiated contract, often bundled with agency advertising packages.24
+3.2 Government and Spatial Data Services
+3.2.1 Geoscape (G-NAF & Building Footprints)
+Geoscape (formerly PSMA) provides the authoritative "Geocoded National Address File" (G-NAF) and building footprint vectors.
+The "Illegal Works" Detector: By accessing Geoscape's "Building Footprints" dataset, the AI can compare the satellite-derived footprint of the building against the legal title boundaries. A footprint extending beyond the boundary line is a definitive flag for encroachment or illegal works.25
+Bushfire & Flood Intelligence: Geoscape offers building-level risk datasets. Unlike generic council maps which might shade an entire paddock as "flood prone," Geoscape can identify if the specific house sits on the high ground, potentially saving thousands in insurance.27
+3.2.2 State Planning Portals
+VicPlan (VIC): Provides zoning and overlay data. While their API support fluctuates, the Data.Vic WFS (Web Feature Service) allows for geospatial querying of zones.28
+NSW Planning Portal: Offers an API to check for Development Applications (DAs). The AI can check neighboring properties for recent DA lodgments—identifying if a view is about to be blocked by a new apartment complex.10
+4. Architectural Blueprint: Building the AI Engine
+The technical implementation requires a Retrieval-Augmented Generation (RAG) architecture optimized for legal document processing. Generic "chat with PDF" tools fail in this domain because they cannot handle the structural complexity of Australian legal contracts (e.g., distinguishing between the "Standard Conditions" and "Special Conditions").
+4.1 Data Ingestion and OCR Pipeline
+The vast majority of due diligence data arrives as unstructured PDFs, often scanned images of text.
+Ingestion:
+Email Hook: A dedicated ingestion email (due-diligence@pathwayprop.com.au) triggers an AWS Lambda function or Azure Function.
+Document Classification: A lightweight ML model (e.g., a fine-tuned DistilBERT) classifies the document: Section32, Contract, StrataReport, PestReport.
+Optical Character Recognition (OCR):
+Tool Selection: Azure AI Document Intelligence (formerly Form Recognizer) is the recommended tool.31 Its "Contract" and "Layout" models are superior to standard OCR because they preserve document structure. They can identify paragraphs, headers, and most importantly, tables.
+Table Extraction: Section 32s contain complex tables for Council Rates and Water Tariffs. Standard text extractors (like pypdf) mangle these tables into unintelligible strings. Azure Document Intelligence returns them as structured JSON, allowing the AI to accurately sum financial outgoings.31
+4.2 The "Legal-RAG" Core
+Once text is extracted, it must be indexed for retrieval.
+Semantic Chunking Strategy:
+Naive chunking (e.g., "every 500 characters") breaks legal clauses. The system must use Structure-Aware Chunking.
+Logic: Scripts should identify headers (e.g., "1.2 Easements", "Special Condition 4") and chunk text based on these logical boundaries.
+Metadata Injection: Each chunk must be tagged with metadata: {source: "Section 32", page: 14, section: "Special Conditions"}. This allows the LLM to cite its sources precisely.33
+Vector Database:
+Pinecone or Weaviate are the industry standards. Pinecone’s serverless architecture allows for isolated namespaces per property, ensuring that data from "12 Smith St" never bleeds into the analysis of "8 Jones Rd".34
+Embedding Models:
+Use OpenAI’s text-embedding-3-large for high-performance semantic retrieval. It handles the nuanced legal vocabulary (e.g., "encumbrance," "caveat," "easement") better than smaller, open-source models.35
+4.3 The Reasoning Engine (LLM)
+Model Selection:
+GPT-4o (via Azure OpenAI) or Claude 3.5 Sonnet (via AWS Bedrock). Claude 3.5 Sonnet is particularly strong for this use case due to its massive context window (200k tokens), which allows it to ingest entire contracts without heavy reliance on retrieval, reducing the risk of "lost context".36
+Prompt Engineering Strategy:
+Role Prompting: "You are a senior Australian Conveyancer with 20 years of experience in Victorian Property Law."
+Chain-of-Thought (CoT): The prompt must instruct the model to reason step-by-step.
+Example: "First, identify all easements listed in the Title Search. Second, check the Plan of Subdivision for the location of these easements. Third, determine if any building structure crosses these easements. Finally, provide a risk rating (High/Medium/Low)."
+Hallucination Mitigation:
+Citation Requirement: The model must be constrained to only answer using the provided context and must cite the Page Number for every claim. If the information is missing, it must output "NOT FOUND" rather than guessing.
+4.4 Computer Vision for Physical Defect Detection
+To automate the physical pillar, the system needs to "see" the property.
+Model Architecture:
+YOLOv8 (You Only Look Once): A state-of-the-art object detection model.
+Training Data: The model should be fine-tuned on datasets like CodeBRIM (defects in concrete/structures) and the MCDS (Multi-Classification Defect Set).37
+Classes: It should be trained to detect: Crack, Water Stain, Mold, Efflorescence, Peeling Paint.
+Implementation:
+The system extracts images from the marketing listing or the Building Inspector’s PDF.
+It runs the YOLOv8 inference.
+Logic: If "Water Stain" is detected in an image labeled "Bedroom Ceiling," the system flags a "Roof Leak Risk."
+4.5 System Architecture Diagram
+The following table outlines the technical stack for the Pathway AI engine:
+Component
+Technology
+Role
+Ingestion
+AWS Lambda / Azure Functions
+Event-driven triggers for file uploads.
+OCR
+Azure Document Intelligence
+Extracting text/tables from scanned PDFs.
+Vector DB
+Pinecone (Serverless)
+Storing semantic embeddings of contracts.
+LLM
+GPT-4o (Azure) / Claude 3.5 (AWS)
+Reasoning, summarization, and risk extraction.
+Computer Vision
+YOLOv8 (hosted on SageMaker)
+Detecting physical defects in images.
+External APIs
+CoreLogic Trestle, VicPlan, Domain
+Validating data against "source of truth."
+Frontend
+React / Next.js
+Analyst dashboard for reviewing risks.
+
+5. Operational Implementation and Risk Management
+Building the technology is only half the battle; integrating it into Pathway Property’s workflow requires a calculated operational strategy.
+5.1 Phased Rollout Roadmap
+Phase 1: The "Digital Filing Cabinet" (Months 1-3)
+Focus: Centralization. Build the ingestion pipeline to automatically scrape, classify, and store documents in the cloud.
+Value: Saves analysts 30 mins per file in "finding documents."
+Phase 2: The "Legal Review Bot" (Months 3-6)
+Focus: Text Analysis. Deploy the RAG pipeline to extract Section 32 data.
+Value: Automates the "Legal Summary" creation.
+Phase 3: The "Integrated Intelligence" (Months 6-9)
+Focus: API Integration. Connect CoreLogic and VicPlan to cross-reference data.
+Value: Provides "Red Flag" reports on zoning and valuation.
+Phase 4: Full Automation (Months 9-12)
+Focus: Vision and End-to-End workflow.
+Value: One-click due diligence reports.
+5.2 Legal and Compliance Risk
+Professional Indemnity: The AI system creates a new liability class. If the AI misses a major easement and Pathway advises the client to buy, the firm could be sued for negligence.
+Mitigation Strategy:
+The "HIL" (Human-in-the-Loop) Protocol: The AI never issues a final report to a client. It produces a "Draft Analyst Report" which must be reviewed and signed off by a human expert.
+Disclaimers: All AI-generated outputs must carry prominent disclaimers: "This report is generated by AI and serves as a preliminary guide only. It does not constitute legal advice."
+Privacy Act Compliance:
+Real estate contracts contain Personally Identifiable Information (PII) of vendors and tenants.
+Redaction: The ingestion pipeline must include a PII Redaction step (using Azure AI Language Service) to mask names/phones before data is sent to the LLM or stored in the vector database.39
+5.3 Cost-Benefit Analysis
+Item
+Cost Driver
+Estimated Annual Cost
+API Fees
+CoreLogic, Domain, VicPlan
+$25,000 - $40,000
+Cloud Compute
+Azure/AWS (LLM Tokens, Storage)
+$10,000 - $15,000
+Engineering
+Maintenance & Dev Ops
+$50,000+ (Internal/Contract)
+Total Cost
+
+
+~$95,000 p.a.
+Savings
+4 hours/deal @ $100/hr x 500 deals
+$200,000 p.a.
+Net Benefit
+
+
+$105,000 + Strategic Speed
+
+The financial ROI is positive, but the strategic ROI—the ability to assess 5x more properties and secure the best deals—is the true value driver for Pathway Property.
+Conclusion
+The construction of an Automated AI Due Diligence system is a formidable engineering challenge, requiring the precise orchestration of legal logic, cloud infrastructure, and advanced machine learning models. However, for Pathway Property, it represents the bridge to the future of real estate investment. By transforming the due diligence process from a manual burden into an automated competitive advantage, Pathway can scale its operations, reduce risk, and deliver superior outcomes for its clients. The technology exists today; the opportunity lies in the bold execution of this blueprint.
+Works cited
+Ultimate Due Diligence Checklist for Property Buyers in Australia 2025 - Lawdocs, accessed on January 5, 2026, https://www.lawdocs.au/property-due-diligence-checklist-2025/
+What is a Section 32 Vendor Statement in Melbourne?, accessed on January 5, 2026, https://mcnabstarke.com.au/what-is-the-section-32-vendor-statement
+Property Development Due Diligence Checklist - Landchecker, accessed on January 5, 2026, https://landchecker.com.au/articles/property-development-due-diligence-checklist/
+Property Development Feasibility Spreadsheets: The Australian Developer's Complete Guide | Feasly, accessed on January 5, 2026, https://www.feasly.com.au/guides/property-development-feasibility-spreadsheet-australia
+The Section 32 Vendor's Statement: A Seller's Legal Checklist - Skilled Conveyancing, accessed on January 5, 2026, https://skilledconveyancing.com.au/the-section-32-vendors-statement-a-sellers-legal-checklist/
+Heritage guidelines and overlays City of Stonnington, accessed on January 5, 2026, https://www.stonnington.vic.gov.au/Planning-and-building/Planning/For-applicants/Heritage-guidelines-and-overlays
+Due diligence checklist - Consumer Affairs Victoria, accessed on January 5, 2026, https://www.consumer.vic.gov.au/library/publications/housing-and-accommodation/buying-and-selling-property/due-diligence-checklist.doc
+Illegal Building Works | Ararat Rural City Council, accessed on January 5, 2026, https://www.ararat.vic.gov.au/services/building/illegal-building-works
+Section 32 statements: the basics - Legal Practitioners' Liability Committee, accessed on January 5, 2026, https://lplc.com.au/resources/lij-article/section-32-statements-the-basics
+Online Development Application Service API V2 - NSW Planning Portal, accessed on January 5, 2026, https://www.planningportal.nsw.gov.au/insights-and-demography/apis-online-digital-services/online-development-application-service-api-v2
+Conveyancing and contracts for sellers - Consumer Affairs Victoria, accessed on January 5, 2026, https://www.consumer.vic.gov.au/housing/buying-and-selling-property/selling-property/conveyancing-and-contracts-for-sellers
+CHU: Common Defects in Strata Properties – The Benefits of Early Intervention, accessed on January 5, 2026, https://stratacare.com.au/chu-common-defects-in-strata-properties-the-benefits-of-early-intervention/
+Improving consumer confidence Research report on serious defects in recently completed strata buildings across New South Wales - NSW Government, accessed on January 5, 2026, https://www.nsw.gov.au/sites/default/files/2021-10/Serious_defects_in_residential_apartments_research_report.pdf
+5 common building defects to look out for in your strata property - PICA Group, accessed on January 5, 2026, https://picagroup.com.au/article/5-common-building-defects-to-look-out-for-in-your-strata-property/
+Due Diligence Checklist | Palliser Real Estate, accessed on January 5, 2026, http://www.palliserproperty.com.au/buying/due-diligence-checklist/
+Checklists for rooming house operators - Consumer Affairs Victoria, accessed on January 5, 2026, https://www.consumer.vic.gov.au/licensing-and-registration/rooming-house-operators/running-your-business/checklists-for-rooming-house-operators
+Rooming House | Whitehorse City Council, accessed on January 5, 2026, https://www.whitehorse.vic.gov.au/living-working/business/starting-business/rooming-house
+SMSFs and property - Moneysmart.gov.au, accessed on January 5, 2026, https://moneysmart.gov.au/property-investment/smsfs-and-property
+What are the SMSF investment restrictions? | Australian Taxation Office, accessed on January 5, 2026, https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/self-managed-super-funds-smsf/smsf-investing/restrictions-on-smsf-investments/what-are-the-smsf-investment-restrictions
+CoreLogic Archives | RESO - Real Estate Standards Organization, accessed on January 5, 2026, https://www.reso.org/blog/web-api-examples/mls-service-providers/corelogic/
+Trestle Documentation: Trestle, accessed on January 5, 2026, https://trestle-documentation.corelogic.com/
+CoreLogic Pricing from Actual Buyers 2024 - PriceLevel, accessed on January 5, 2026, https://www.pricelevel.com/vendors/corelogic/pricing
+Pricing Overview – Trestle Data Pricing - Trestle Documentation - Cotality, accessed on January 5, 2026, https://trestle-documentation.corelogic.com/data-pricing.html
+API Packages - Domain Developer Portal, accessed on January 5, 2026, https://developer.domain.com.au/docs/v1/apis/
+Historical Bushfire Boundaries - Version 2.0 - Product catalogue - Geoscience Australia, accessed on January 5, 2026, https://ecat.ga.gov.au/geonetwork/srv/api/records/cb5b5914-d952-4cbd-8919-2941c1ac9272?language=eng
+Geoscape: Home, accessed on January 5, 2026, https://geoscape.com.au/
+Aon's Shift to Building-Specific Flood Profiling with National Buildings - Geoscape, accessed on January 5, 2026, https://geoscape.com.au/impact-stories/aon-and-national-buildings/
+Using VicPlan - Planning.vic.gov.au, accessed on January 5, 2026, https://www.planning.vic.gov.au/planning-schemes/using-vicplan
+Vicmap Planning REST API - Dataset - Victorian Government Data Vic, accessed on January 5, 2026, https://discover.data.vic.gov.au/dataset/vicmap-planning-api
+Online DA Data API | Dataset | NSW Planning Portal - Link Digital, accessed on January 5, 2026, https://prod.planning-nsw.links.com.au/opendata/dataset/online-da-data-api
+Document Processing Models - Document Intelligence - Foundry Tools - Microsoft Learn, accessed on January 5, 2026, https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/model-overview?view=doc-intel-4.0.0
+Document Intelligence for Structured Data Extraction | by Iaroslav Sedrichev - Medium, accessed on January 5, 2026, https://medium.com/@iaroslav.sedrichev/document-intelligence-for-structured-data-extraction-0ac2da727b00
+I made a fast, structured PDF extractor for RAG; 300 pages a second - Reddit, accessed on January 5, 2026, https://www.reddit.com/r/Rag/comments/1pzwot0/i_made_a_fast_structured_pdf_extractor_for_rag/
+[Help] Building a Legal RAG Chatbot for Real Estate Law - Need Architecture Advice for 2000+ Municipal Documents - Reddit, accessed on January 5, 2026, https://www.reddit.com/r/Rag/comments/1n1eq1j/help_building_a_legal_rag_chatbot_for_real_estate/
+Build scalable and serverless RAG workflows with a vector engine for Amazon OpenSearch Serverless and Amazon Bedrock Claude models | AWS Big Data Blog, accessed on January 5, 2026, https://aws.amazon.com/blogs/big-data/build-scalable-and-serverless-rag-workflows-with-a-vector-engine-for-amazon-opensearch-serverless-and-amazon-bedrock-claude-models/
+Lawyer or language model? Testing AI's competence in answering Australian legal - Allens, accessed on January 5, 2026, https://www.allens.com.au/insights-news/insights/2024/05/testing-ai-competence-in-answering-australian-legal-questions/
+BD3: Building Defects Detection Dataset - GitHub, accessed on January 5, 2026, https://github.com/Praveenkottari/BD3-Dataset
+Metal Surface Defect Dataset, accessed on January 5, 2026, https://www.scidb.cn/en/detail?dataSetId=3d739ddb4bdc439a9bf7ef550cae48d8
+Legal Requirements for Ai in Real Estate Transactions Australia - Oreate AI Blog, accessed on January 5, 2026, https://www.oreateai.com/blog/legal-requirements-for-ai-in-real-estate-transactions-australia/db8669e5d64b64907c625285af50e8d3
+AI: Conducting legal due diligence – Law services | EY - Australia, accessed on January 5, 2026, https://www.ey.com/en_au/insights/law/ai-conducting-legal-due-diligence-law-services

@@ -1,0 +1,111 @@
+Operational Implementation Plan: The Pathway "Mission Analysis" Engine
+Executive Summary of Updates
+This updated plan restructures the technical architecture to align strictly with the Pathway Property Business Logic (Street Level vs. Asset Level) and the Military Guide Framework.
+Key Architectural Shift: The system is no longer a linear document processor. It is now a Hierarchical Decision Engine.
+Phase 1 (Street Level): A low-cost, high-speed "Gatekeeper" that filters opportunities based on macro factors (Social Housing, Flight Paths, Zoning) before incurring the cost of processing documents.
+Phase 2 (Asset Level): A deep-dive analysis engine that processes the "Sweat Equity" potential and legal risks only for properties that survive Phase 1.
+1. System Architecture: The "Street-First" Funnel
+To optimize for speed and cost, the architecture enforces a "Fail Fast" mechanism. We do not waste GPU cycles or API credits analyzing a contract if the property is under a flight path.
+1.1 The "Gatekeeper" Module (Street Level Logic)
+This module runs instantly when an address is entered or a listing URL is scraped.
+Check
+Technical Implementation
+"Kill Criteria" Threshold
+Social Housing Density
+Source: ABS TableBuilder API (Census Data).
+
+Method: Map Property Lat/Long -> ABS Mesh Block/SA1 -> Query "Landlord Type: State Authority".
+>15% density in immediate SA1 block triggers "Manual Review".
+Aeronautical Noise
+Source: Airservices Australia (WFS Overlay) or local council GIS.
+
+Method: Point-in-Polygon check against ANEF 20+ contours.
+ANEF > 20 or N70 > 20 (flights/day) = AUTO KILL.
+Flood & Bushfire
+Source: Geoscape API / State Planning WFS.
+
+Method: Check 1% AEP Flood Extent and BAL Zones.
+1% AEP Flood = AUTO KILL.
+
+BAL-40/FZ = Red Flag (Cost buffer required).
+Zoning Mismatch
+Source: VicPlan API / NSW ePlanning Spatial Services.
+
+Method: Verify Zone Code (e.g., R2, RGZ) matches intended strategy.
+High Density Adjacent = Flag (Privacy risk).
+
+1.2 The "Analyst" Module (Asset Level Logic)
+Only if the Gatekeeper returns "GO", the system ingests the data room (Contract, Floorplan, Pest Report).
+Check
+Technical Implementation
+Logic / Prompt Engineering
+Sweat Equity Detector
+Model: GPT-4o (Vision) + LayoutLM.
+
+Input: Marketing Floorplan Image.
+
+Task: Identifying "Lazy Space".
+Prompt: "Analyze this floorplan. Identify laundries >5sqm, enclosed sunrooms, or oversized hallways that could be converted into a bathroom or bedroom. Calculate potential ROI based on bedroom differential."
+Structural Risk
+Model: Custom YOLOv8 (Vision).
+
+Input: Pest/Building Report Photos.
+
+Task: Defect Classification.
+Detect: Major Crack (>2mm), Water Stain, Mould, Salt Damp.
+
+Logic: If "Termite Barrier" is missing in Section 32 AND "Termite Damage" detected in photos = HIGH RISK.
+Legal "Red Team"
+Model: RAG Pipeline (Pinecone + Claude 3.5 Sonnet).
+
+Input: Contract of Sale / Section 32.
+
+Task: Clause Extraction.
+Extract: "Special Conditions", "Easements", "Covenants".
+
+Logic: Flag any special condition that "Waives Cooling Off" or "Accepts Property As-Is".
+
+2. Technical Stack & Development Roadmap
+Phase 1: The "Intelligence" Dashboard (Weeks 1-6)
+Goal: Build the "Street Level" Gatekeeper.
+Backend: Python (FastAPI).
+Database: PostgreSQL (PostGIS enabled for geospatial queries).
+Integrations:
+Mapbox: For visualizing the "Street Level" risk layers (Social housing heatmaps, Flight paths).
+Domain/RealEstate.com.au Scraper: To auto-feed listings into the funnel.
+Deliverable: A web portal where an analyst pastes a link, and gets a "Go/No-Go" result in 10 seconds.
+Phase 2: The "Document" Engine (Weeks 7-14)
+Goal: Automate the Asset Level review.
+OCR: Deploy Azure AI Document Intelligence (Layout Model) to handle the complex tables in Section 32s (Council rates, Title coordinates).
+RAG Core: Setup Pinecone (Vector DB) with metadata filtering.
+Chunking Strategy: "Parent-Child" chunking. Chunk by legal clause (Child), but retrieve the full page context (Parent) for the LLM to ensure no context is lost.
+Deliverable: The system can now read a 150-page PDF and answer: "Is there a caveat on the title?" and "Are there illegal works?"
+Phase 3: The "Sweat Equity" Vision (Weeks 15-20)
+Goal: Implement the "Value Add" logic.
+Vision Model: Fine-tune a vision model on floorplans to recognize "Walls to remove" or "Rooms to split".
+Feasibility Script: A Python script that takes the "Renovation Suggestions" from the AI and applies a cost matrix (e.g., Bathroom addition = $25k) to update the yield forecast.
+Deliverable: A "Potential Value" score on the dashboard.
+3. User Interface (UI): The "Mission Control"
+The UI must reflect the Military Command aesthetic and workflow.
+Screen 1: The Situation Room (Map View)
+Visual: A map of the target suburb overlaid with "Enemy Forces" (Public Housing clusters, Flood Zones, Main Roads).
+Interaction: Clicking a property runs the "Gatekeeper".
+Feedback: Properties turn Green (Viable Target) or Red (Mission Abort) instantly.
+Screen 2: The Target Dossier (Property View)
+Layout: Three-column view.
+Left: The Facts (extracted data: Price, Yield, Land Size).
+Center: The Evidence (PDF viewer with "Red Flags" highlighted in neon).
+Right: The Sweat Equity Plan (AI-generated renovation concepts: "Convert laundry to Bed 4 -> +$50/wk rent").
+Screen 3: The Execution Order (Report)
+Action: "Generate IC Paper".
+Output: A pre-formatted PDF investment memo that includes the "Pre-Mortem" analysis (e.g., "Primary risk is interest rate exposure; mitigated by 6.5% yield").
+4. "Red Flag" & Kill Criteria Configuration
+To strictly adhere to the Pathway methodology, we will hard-code these "Kill Criteria" into the backend logic:
+The "Cluster" Kill: If >20% of the street is owned by the Department of Housing -> Stop Process.
+The "Noise" Kill: If N70 > 20 flights -> Stop Process.
+The "Title" Kill: If Title Search reveals "Life Estate" or "Company Share" (hard to finance) -> Flag for Senior Review.
+The "Cashflow" Kill: If Gross Yield < 4% (unless explicitly a "Capital Growth" play) -> Warning.
+5. Next Steps for Development Team
+Data Procurement: Immediately acquire the ABS SA1 Shapefiles (Census Data) and Airservices Australia ANEF Data (usually free/open government data).
+Prototype the Gatekeeper: Build a simple script that takes an address and checks it against the Flood and Social Housing datasets. This delivers immediate value before the complex AI is built.
+Legal Template Sourcing: Gather 50 past "successful" and "failed" Section 32s to test the RAG system against known ground truths.

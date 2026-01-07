@@ -1,0 +1,51 @@
+# Pathway Property Backend Dependencies
+
+# Core Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+
+# Database
+sqlalchemy==2.0.25
+aiosqlite==0.19.0
+
+# HTTP Client
+httpx==0.26.0
+aiohttp==3.9.1
+
+# Environment
+python-dotenv==1.0.0
+
+# Data Processing
+pandas==2.1.4
+geopandas==0.14.2
+shapely==2.0.2
+pyproj==3.6.1
+
+# AI/ML Services
+openai==1.12.0
+azure-ai-documentintelligence==1.0.2  # Stable version (was beta 1.0.0b2)
+isaacus>=0.1.0  # Isaacus Legal AI SDK
+
+# Vector Store (Local)
+chromadb==0.4.22
+
+# PDF Processing
+pypdf==4.0.1
+pdf2image==1.17.0
+Pillow==10.2.0
+
+# Word Document Processing
+python-docx==1.1.0
+
+# Report Generation
+weasyprint>=67.0
+pydyf>=0.11.0
+jinja2==3.1.3
+
+# Utilities
+pydantic==2.5.3
+pydantic-settings==2.1.0
+python-dateutil==2.8.2
+uuid6==2024.1.12
+
